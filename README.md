@@ -74,7 +74,7 @@ requests in the same file in normal mode.
 Any line starting with the triple hashtag will be interpreted as a request
 separator:
 
-```http
+```
 ### The first request
 
 POST {{base_url}}/api/v1/users HTTP/1.1
@@ -121,7 +121,7 @@ environment they want to use before executing the request.
 
 The environment variables can then be wrapped as ``{{varname}}`` in the buffer:
 
-```http
+```
 GET {{base_url}}/api/v1/users?limit=10
 Authorization: Bearer {{jwt_token}}
 ```
