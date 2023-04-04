@@ -12,7 +12,7 @@ It is a more advanced alternative to
 [vim-http](https://github.com/nicwest/vim-http), but it comes closer to the
 VSCode and IntelliJ alternatives because of the following features:
 
-1. It supports for environment variables.
+1. It supports environment variables.
 2. It uses Neovim's `async_call` mechanism, so the request is not blocking for
    the editor, and it can be stopped at any time.
 3. An extended syntax for the `.http` files, with support for JSON and HTML
