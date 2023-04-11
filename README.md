@@ -3,6 +3,8 @@
 You can use this plugin to run HTTP requests directly in your favourite text
 editor.
 
+![Screen recording of the plugin running an HTTP request](https://user-images.githubusercontent.com/42405/231295219-c7715fb0-85d1-4183-8252-c8b670f59976.gif)
+
 This plugin is inspired by the
 [vscode-restclient](https://github.com/Huachao/vscode-restclient) extension and
 the [IntelliJ HTTP
