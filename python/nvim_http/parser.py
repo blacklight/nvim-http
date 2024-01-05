@@ -47,7 +47,7 @@ def select_surrounding_http_request() -> str:
     as a string.
     """
     cursor_orig = vim.current.window.cursor[:]
-    vim.current.window.cursor[1] = 0
+    vim.current.window.cursor = (vim.current.window.cursor[0], 0)
     request_start_idx = request_end_idx = None
 
     # Search backwards for the head of the request
@@ -56,7 +56,7 @@ def select_surrounding_http_request() -> str:
         if m:
             request_start_idx = vim.current.window.cursor[0]
         else:
-            vim.current.window.cursor = [vim.current.window.cursor[0] - 1, 0]
+            vim.current.window.cursor = (vim.current.window.cursor[0] - 1, 0)
 
     if request_start_idx is None:
         vim.current.window.cursor = cursor_orig[:]
@@ -69,10 +69,10 @@ def select_surrounding_http_request() -> str:
     ):
         m = request_sep_regex.search(vim.current.line)
         if m:
-            vim.current.window.cursor = [max(0, vim.current.window.cursor[0] - 1), 0]
+            vim.current.window.cursor = (max(0, vim.current.window.cursor[0] - 1), 0)
             request_end_idx = vim.current.window.cursor[0]
         else:
-            vim.current.window.cursor = [vim.current.window.cursor[0] + 1, 0]
+            vim.current.window.cursor = (vim.current.window.cursor[0] + 1, 0)
 
     if request_end_idx is None:
         request_end_idx = len(vim.current.buffer) - 1
