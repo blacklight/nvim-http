@@ -39,15 +39,14 @@ def _run_http_request(request: dict, vertical: bool = True):
         if request["payload"].strip():
             req_args["data"] = request["payload"]
 
-        try:
-            rs = method(url, **req_args)
-        finally:
-            current_request.clear()
+        rs = method(url, **req_args)
 
         show_http_response(rs, vertical=vertical)
         result_queue.put(rs)
     except Exception as e:
         result_queue.put(e)
+    finally:
+        current_request.clear()
 
 
 def http_run(vertical: bool = True):
@@ -70,12 +69,6 @@ def http_run(vertical: bool = True):
         )
         current_request.proc.start()
 
-        rs = result_queue.get()
-        if isinstance(rs, Exception) and not isinstance(rs, InterruptedError):
-            sys.stderr.write(f"HTTP request ERROR: {rs.__class__.__name__}: {rs}\n")
-
-        current_request.proc.join()
-
     vim.async_call(_run)
 
 
@@ -84,6 +77,6 @@ def http_stop():
     Stop the current HTTP request, if it's running.
     """
     if current_request.proc:
-        result_queue.put(InterruptedError("The request was terminated"))
         current_request.proc.kill()
+        result_queue.put(InterruptedError("The request was terminated"))
         current_request.clear()
