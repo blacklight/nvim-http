@@ -44,6 +44,8 @@ class HttpRunner:
             show_http_response(rs, nvim=self.nvim, opts=opts)
         except Exception as e:
             self.logger.error(f"Error running HTTP request: {e}\n\n{tb.format_exc()}")
+        finally:
+            self._session = None
 
     @pynvim.command(
         "Http", nargs="?", sync=False, complete="customlist,HttpCommandComplete"
@@ -82,6 +84,7 @@ class HttpRunner:
         if self._session:
             self._session.close()
             self.logger.warning("HTTP request stopped\n")
+            self._session = None
 
     @pynvim.function("HttpCommandComplete", sync=True)
     def http_command_complete(self, args: List[str]) -> List[str]:
