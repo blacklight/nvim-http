@@ -60,7 +60,7 @@ def select_surrounding_http_request(nvim: Nvim) -> str:
 
     if request_start_idx is None:
         nvim.current.window.cursor = cursor_orig[:]
-        raise AssertionError("Could not find the beginning of this request\n")
+        raise ValueError("Could not find the beginning of this request\n")
 
     # Search forward for the tail of the request
     while (
@@ -77,4 +77,5 @@ def select_surrounding_http_request(nvim: Nvim) -> str:
     if request_end_idx is None:
         request_end_idx = len(nvim.current.buffer) - 1
 
+    request_end_idx = max(request_start_idx, request_end_idx)
     return "\n".join(nvim.current.buffer.range(request_start_idx, request_end_idx))

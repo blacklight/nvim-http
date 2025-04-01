@@ -66,7 +66,7 @@ class HttpRunner:
         mode = self.nvim.call("mode")
         visual = mode in {"v", "V", "q", "Q"}
         text = (
-            "\n".join(self.nvim.current.line)  # if normal
+            "\n".join(self.nvim.current.line)
             if visual
             else select_surrounding_http_request(self.nvim)
         )
