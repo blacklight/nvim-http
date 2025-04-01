@@ -83,7 +83,7 @@ requests in the same file in normal mode.
 Any line starting with the triple hashtag will be interpreted as a request
 separator:
 
-```
+```http
 ### The first request
 
 POST {{base_url}}/api/v1/users HTTP/1.1
