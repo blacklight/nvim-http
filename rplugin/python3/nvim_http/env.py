@@ -3,7 +3,7 @@ import os
 import re
 import sys
 
-import vim
+from pynvim import Nvim
 
 env_file_regex = re.compile(r".*\.?env\.json$")
 env_var_regex = re.compile(r"{{([A-Za-z0-9-_]+)}}")
@@ -20,16 +20,19 @@ def env_parse(text: str, **env) -> str:
     )
 
 
-def get_environments() -> dict:
+def get_environments(nvim: Nvim) -> dict:
     """
     Load all the available environments from the `./*.env.json` files.
     """
     envs = {}
-    curfile = vim.eval('expand("%")')
+    curfile = nvim.eval('expand("%")')
+    print(f"curfile: {curfile}")
     dirs = {
         os.path.abspath("."),
         os.path.abspath(os.path.dirname(curfile)),
     }
+
+    print(f"dirs: {dirs}")
 
     env_files = [
         os.path.join(d, f)
@@ -48,11 +51,11 @@ def get_environments() -> dict:
     return envs
 
 
-def get_environment() -> dict:
+def get_environment(nvim: Nvim) -> dict:
     """
     Prompt the user for an environment and return it as a dictionary.
     """
-    envs = get_environments()
+    envs = get_environments(nvim)
     if not envs:
         return {}
     if len(envs) == 1:
@@ -60,7 +63,7 @@ def get_environment() -> dict:
 
     env_names = list(envs.keys())
     envs = list(envs.values())
-    env_idx = vim.eval(
+    env_idx = nvim.eval(
         'input("Select an environment\\n\\n'
         + "\\n".join([f"{i+1}: {name}" for i, name in enumerate(env_names)])
         + '\\n\\n> ")'

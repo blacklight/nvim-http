@@ -1,20 +1,20 @@
 from http.client import responses
 import json
 
-import vim
+from pynvim import Nvim
 
 response_bufname = "/tmp/response.http"
 
 
-def get_http_response_buf():
+def get_http_response_buf(nvim: Nvim):
     """
     Get the buffer object of the HTTP response.
     """
-    response_bufs = [buf for buf in vim.buffers if buf.name == response_bufname]
+    response_bufs = [buf for buf in nvim.buffers if buf.name == response_bufname]
     return response_bufs[0] if response_bufs else None
 
 
-def show_http_response(response, vertical=True):
+def show_http_response(response, nvim: Nvim, vertical=True):
     """
     Display the response on the given response buffer.
 
@@ -22,11 +22,11 @@ def show_http_response(response, vertical=True):
     :param vertical: Whether to display the response in a vertical or horizontal
         buffer.
     """
-    buf = get_http_response_buf()
+    buf = get_http_response_buf(nvim)
     cmd = "vsplit" if vertical else "split"
     if not buf:
-        vim.command(f"{cmd} {response_bufname}")
-        buf = get_http_response_buf()
+        nvim.command(f"{cmd} {response_bufname}")
+        buf = get_http_response_buf(nvim)
         assert buf, "Could not find response buffer"
 
     try:

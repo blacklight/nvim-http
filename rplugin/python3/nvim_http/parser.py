@@ -1,6 +1,6 @@
 import re
 
-import vim
+from pynvim import Nvim
 
 from .env import env_parse
 
@@ -41,40 +41,40 @@ def parse_http_request(text: str, **env) -> dict:
     return request
 
 
-def select_surrounding_http_request() -> str:
+def select_surrounding_http_request(nvim: Nvim) -> str:
     """
     Find the boundaries of the current HTTP request and return the full request
     as a string.
     """
-    cursor_orig = vim.current.window.cursor[:]
-    vim.current.window.cursor = (vim.current.window.cursor[0], 0)
+    cursor_orig = nvim.current.window.cursor[:]
+    nvim.current.window.cursor = (nvim.current.window.cursor[0], 0)
     request_start_idx = request_end_idx = None
 
     # Search backwards for the head of the request
-    while vim.current.window.cursor[0] >= 0 and request_start_idx is None:
-        m = request_head_regex.match(vim.current.line)
+    while nvim.current.window.cursor[0] >= 0 and request_start_idx is None:
+        m = request_head_regex.match(nvim.current.line)
         if m:
-            request_start_idx = vim.current.window.cursor[0]
+            request_start_idx = nvim.current.window.cursor[0]
         else:
-            vim.current.window.cursor = (vim.current.window.cursor[0] - 1, 0)
+            nvim.current.window.cursor = (nvim.current.window.cursor[0] - 1, 0)
 
     if request_start_idx is None:
-        vim.current.window.cursor = cursor_orig[:]
+        nvim.current.window.cursor = cursor_orig[:]
         raise AssertionError("Could not find the beginning of this request\n")
 
     # Search forward for the tail of the request
     while (
-        vim.current.window.cursor[0] < len(vim.current.buffer)
+        nvim.current.window.cursor[0] < len(nvim.current.buffer)
         and request_end_idx is None
     ):
-        m = request_sep_regex.search(vim.current.line)
+        m = request_sep_regex.search(nvim.current.line)
         if m:
-            vim.current.window.cursor = (max(0, vim.current.window.cursor[0] - 1), 0)
-            request_end_idx = vim.current.window.cursor[0]
+            nvim.current.window.cursor = (max(0, nvim.current.window.cursor[0] - 1), 0)
+            request_end_idx = nvim.current.window.cursor[0]
         else:
-            vim.current.window.cursor = (vim.current.window.cursor[0] + 1, 0)
+            nvim.current.window.cursor = (nvim.current.window.cursor[0] + 1, 0)
 
     if request_end_idx is None:
-        request_end_idx = len(vim.current.buffer) - 1
+        request_end_idx = len(nvim.current.buffer) - 1
 
-    return "\n".join(vim.current.buffer.range(request_start_idx, request_end_idx))
+    return "\n".join(nvim.current.buffer.range(request_start_idx, request_end_idx))

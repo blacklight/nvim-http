@@ -28,8 +28,10 @@ Add the plugin to your Neovim configuration through your favourite plugin
 manager. For example:
 
 ```vim
-Plug 'BlackLight/nvim-http'
+Plug 'blacklight/nvim-http'
 ```
+
+You may need to run `:UpdateRemotePlugins` after installing the plugin.
 
 ### Dependencies
 
@@ -60,7 +62,8 @@ To run your request:
 1. Position the cursor anywhere in the body, or visually select the whole body.
 2. Run the `:Http` command.
 
-The response will be shown in a `vsplit` buffer.
+The response will be shown in a `vsplit` buffer by default. Use the `:Http -h`
+if you want to show the response in a horizontal split instead.
 
 If you want to interrupt the current request, use the `:HttpStop` command.
 
