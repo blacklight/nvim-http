@@ -54,7 +54,7 @@ class HttpRunner:
         """
         Run the HTTP request under the cursor.
 
-        Args:
+        :param args: The command-line arguments.
 
             -v / --vertical: Display the response in a vertical split (default)
             -h / --horizontal: Display the response in a horizontal
