@@ -10,9 +10,11 @@ endif
 syn case ignore
 syn include @JSON syntax/json.vim
 syn include @HTML syntax/html.vim
+syn include @XML syntax/xml.vim
 
 syn region HttpResponse start=/^HTTP\/\d\+\.\d\+\s\+/ end='skip' contains=HttpHead,HttpComment
-syn region HttpRequest start=/^###/ end=/^###/ matchgroup=Comment contains=HttpHead,HttpComment
+syn region HttpRequest start=/^\(###\)\|\(GET\)\|\(POST\)\|\(PUT\)\|\(PATCH\)\|\(DELETE\)\|\(HEAD\)\|\(CONNECT\)/
+            \ end=/^\(###\)\|$/ matchgroup=Comment contains=HttpHead,HttpComment
 
 syn region HttpHead
             \ start=/^\(\(GET\)\|\(POST\)\|\(PUT\)\|\(PATCH\)\|\(DELETE\)\|\(HEAD\)\|\(CONNECT\)\|\(HTTP\/\d\+\.\d\+\)\)\s\+/
@@ -24,13 +26,14 @@ syn region HttpHead
 syn region HttpComment start=/#/ end=/$/ contained
 syn region HttpHeader start=/^[A-Za-z0-9_\-{}]\+:/ end=/$/ contained contains=HttpHeaderName,HttpVariable
 syn region HttpResponseLine start=/^HTTP\/\d\+\.\d\+\s\+/ end=/$/ contained contains=HttpVersion,HttpResponseStatus
-syn region HttpPayload start='.' end=/^\n\|^###/ keepend contained contains=HttpJsonPayload
+syn region HttpPayload start='.' end=/^\(\n\|###.*\|$\)/ keepend contained contains=HttpJsonPayload,HttpHtmlPayload,HttpXmlPayload
 syn region HttpJsonPayload start=/^\s*\({\|\[\)/ end=/^\s*\(}\|\]\)\s*$/ contained contains=@JSON
-syn region HttpHtmlPayload start=/^\s*<html/ end=/^\s*<\/\s*html\s*>$/ contained contains=@HTML
+syn region HttpHtmlPayload start=/^\s*\(\(<html\s*\)\|\(<?doctype\s\+\)\).*>/ end=/^\s*<\/\s*html\s*>/ keepend contained contains=@HTML
+syn region HttpXmlPayload start=/^\s*<?xml\s\+/ end=/^(\n\|###)/ keepend contained contains=@XML
 
 syn match  HttpMethod /^\(\(GET\)\|\(POST\)\|\(PUT\)\|\(PATCH\)\|\(DELETE\)\|\(HEAD\)\|\(CONNECT\)\)\s\+/
             \ contained nextgroup=HttpURL
-syn match  HttpURL /http[s]\?:\/\/[A-Za-z0-9\/\-_:?%&{}()\]\[]\+/ contained contains=HttpVariable
+syn match  HttpURL /http[s]\?:\/\/[A-Za-z0-9\/\-._:?%&{}()\]\[]\+/ contained contains=HttpVariable
 syn match  HttpVersion /HTTP\/\d\+\.\d\+/ contained
 syn match  HttpResponseStatus /\s\+\d\+\s\+[A-Za-z ]\+$/ contained
 syn match  HttpHeaderName /^[^:]\+/ contained contains=HttpVariable
