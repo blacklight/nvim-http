@@ -3,6 +3,8 @@ import json
 
 from pynvim import Nvim
 
+from .opts import HttpRequestOptions
+
 response_bufname = "/tmp/response.http"
 
 
@@ -14,7 +16,7 @@ def get_http_response_buf(nvim: Nvim):
     return response_bufs[0] if response_bufs else None
 
 
-def show_http_response(response, nvim: Nvim, vertical=True):
+def show_http_response(response, nvim: Nvim, opts: HttpRequestOptions):
     """
     Display the response on the given response buffer.
 
@@ -23,7 +25,7 @@ def show_http_response(response, nvim: Nvim, vertical=True):
         buffer.
     """
     buf = get_http_response_buf(nvim)
-    cmd = "vsplit" if vertical else "split"
+    cmd = opts.response_buffer_mode.value
     if not buf:
         nvim.command(f"{cmd} {response_bufname}")
         buf = get_http_response_buf(nvim)

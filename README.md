@@ -63,7 +63,11 @@ To run your request:
 2. Run the `:Http` command.
 
 The response will be shown in a `vsplit` buffer by default. Use the `:Http -h`
-if you want to show the response in a horizontal split instead.
+if you want to show the response in a horizontal split instead, or `:Http -t` if
+you want to show it in a new tab.
+
+The default request timeout is 10 seconds, but you can change it by setting the
+`-T`/`--timeout` flag, e.g. `:Http -T 5`.
 
 If you want to interrupt the current request, use the `:HttpStop` command.
 
