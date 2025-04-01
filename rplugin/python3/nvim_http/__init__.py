@@ -1,17 +1,13 @@
-import logging
-import multiprocessing
-from typing import List
+import traceback as tb
+from typing import List, Optional
 
 import requests
 import pynvim
 
 from .env import get_environment
+from .log import Logger
 from .parser import parse_http_request, select_surrounding_http_request
-from .request import CurrentRequest
 from .response import show_http_response
-
-pynvim.setup_logging("http_runner")
-logger = logging.getLogger(__name__)
 
 
 @pynvim.plugin
@@ -22,14 +18,14 @@ class HttpRunner:
 
     def __init__(self, nvim: pynvim.Nvim):
         self.nvim = nvim
-        self._current_request = CurrentRequest()
-        self._result_queue = multiprocessing.Queue()
+        self.logger = Logger(nvim)
+        self._session: Optional[requests.Session] = None
 
     def _http_run(self, request: dict, vertical: bool = True):
         """
         Run an HTTP request and display the response in a new buffer.
         """
-        print(f"Running HTTP request: {request['method']} {request['url']}")
+        self.logger.info(f"Running HTTP request: {request['method']} {request['url']}")
 
         try:
             method = getattr(requests, request.pop("method"))
@@ -38,14 +34,12 @@ class HttpRunner:
             if request["payload"].strip():
                 req_args["data"] = request["payload"]
 
-            rs = method(url, **req_args)
+            with requests.Session() as self._session:
+                rs = method(url, **req_args)
 
             show_http_response(rs, nvim=self.nvim, vertical=vertical)
-            self._result_queue.put(rs)
         except Exception as e:
-            self._result_queue.put(e)
-        finally:
-            self._current_request.clear()
+            self.logger.error(f"Error running HTTP request: {e}\n\n{tb.format_exc()}")
 
     @pynvim.command(
         "Http", nargs="?", sync=False, complete="customlist,HttpCommandComplete"
@@ -75,10 +69,9 @@ class HttpRunner:
         """
         Stop the current HTTP request, if it's running.
         """
-        if self._current_request.proc:
-            self._current_request.proc.kill()
-            self._result_queue.put(InterruptedError("The request was terminated"))
-            self._current_request.clear()
+        if self._session:
+            self._session.close()
+            self.logger.warning("HTTP request stopped\n")
 
     @pynvim.function("HttpCommandComplete", sync=True)
     def http_command_complete(self, _: List[str]):
