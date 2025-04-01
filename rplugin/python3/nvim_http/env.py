@@ -26,13 +26,11 @@ def get_environments(nvim: Nvim) -> dict:
     """
     envs = {}
     curfile = nvim.eval('expand("%")')
-    print(f"curfile: {curfile}")
+    pwd = nvim.eval("getcwd()")
     dirs = {
-        os.path.abspath("."),
+        pwd,
         os.path.abspath(os.path.dirname(curfile)),
     }
-
-    print(f"dirs: {dirs}")
 
     env_files = [
         os.path.join(d, f)
