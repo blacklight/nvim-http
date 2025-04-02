@@ -64,8 +64,9 @@ def get_environments(nvim: Nvim) -> dict:
     env_files = [
         os.path.join(d, f)
         for d in dirs
+        if os.path.isdir(d)
         for f in os.listdir(d)
-        if os.path.isdir(d) and env_file_regex.match(f)
+        if env_file_regex.match(f)
     ]
 
     default_env = {}
