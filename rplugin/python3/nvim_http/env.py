@@ -44,7 +44,13 @@ def parse_dot_env(env_file: str) -> dict:
             if len(tokens) < 2:
                 continue
 
-            env[tokens[0].strip()] = "=".join(tokens[1:]).strip()
+            value = re.sub(
+                r"^['\"](.*)['\"]$",
+                r"\1",
+                tokens[1].strip(),
+            )
+
+            env[tokens[0].strip()] = value
 
     return env
 
