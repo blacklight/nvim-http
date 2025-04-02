@@ -5,7 +5,7 @@ import requests
 import pynvim
 
 from .env import get_environment
-from .log import Logger
+from .log import logger, set_logger
 from .opts import HttpRequestOptions
 from .parser import parse_http_request, select_surrounding_http_request
 from .response import show_http_response
@@ -19,14 +19,14 @@ class HttpRunner:
 
     def __init__(self, nvim: pynvim.Nvim):
         self.nvim = nvim
-        self.logger = Logger(nvim)
+        set_logger(nvim)
         self._session: Optional[requests.Session] = None
 
     def _http_run(self, request: dict, opts: HttpRequestOptions):
         """
         Run an HTTP request and display the response in a new buffer.
         """
-        self.logger.info(f"Running HTTP request: {request['method']} {request['url']}")
+        logger().info(f"Running HTTP request: {request['method']} {request['url']}")
 
         try:
             method = getattr(requests, request.pop("method"))
@@ -40,10 +40,10 @@ class HttpRunner:
             with requests.Session() as self._session:
                 rs = method(url, **req_args)
 
-            self.logger.debug(f"HTTP response: {rs.status_code} {rs.reason}")
+            logger().debug(f"HTTP response: {rs.status_code} {rs.reason}")
             show_http_response(rs, nvim=self.nvim, opts=opts)
         except Exception as e:
-            self.logger.error(f"Error running HTTP request: {e}\n\n{tb.format_exc()}")
+            logger().error(f"Error running HTTP request: {e}\n\n{tb.format_exc()}")
         finally:
             self._session = None
 
@@ -83,7 +83,7 @@ class HttpRunner:
         """
         if self._session:
             self._session.close()
-            self.logger.warning("HTTP request stopped\n")
+            logger().warning("HTTP request stopped")
             self._session = None
 
     @pynvim.function("HttpCommandComplete", sync=True)
