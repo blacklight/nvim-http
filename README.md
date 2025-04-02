@@ -165,3 +165,39 @@ GET {{base_url}}/api/v1/users?limit=10
 Authorization: Bearer {{jwt_token}}
 ```
 
+### Inline shell commands
+
+You can also use inline shell commands in the `.http` file, or in the environment
+variables. The commands will be executed by the shell and the output will be used
+in the request.
+
+For example:
+
+```http
+###
+
+GET {{URL}}/api/v1/users/$(echo $USER)
+
+###
+
+GET {{URL}}/api/v1/users/me
+Authorization: Bearer $(gopass show api/token)
+Requested-By: $(whoami)
+Requested-At: $(date)
+
+###
+```
+
+Or:
+
+```bash
+# .env
+TOKEN=$(gopass show api/token)
+```
+
+```http
+###
+# request.http
+GET {{URL}}/api/v1/users/me
+Authorization: Bearer {{TOKEN}}
+```

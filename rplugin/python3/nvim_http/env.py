@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import subprocess
 import sys
 
 from pynvim import Nvim
@@ -9,15 +10,55 @@ env_file_regex = re.compile(r"(.*\.?env\.json)|(\.env)$")
 env_var_regex = re.compile(r"{{([A-Za-z0-9-_]+)}}")
 
 
+def _shell_expand(text: str) -> str:
+    """
+    Expand shell subcommands in a string.
+
+    Either an environment variable or any line in the HTTP request can contain
+    shell subcommands, wrapped in `$(...)`. This function expands those commands
+    and replaces them with their output. For example:
+
+        ```http
+        ###
+        GET /api/v1/users/$(echo $USER)
+
+        ###
+        GET /api/v1/users/me
+        Authorization: Bearer $(gopass show api/token)
+        Requested-By: $(whoami)
+        Requested-At: $(date)
+        ```
+
+        Or:
+
+        ```
+        # .env
+        TOKEN=$(gopass show api/token)
+
+        # request.http
+        GET /api/v1/users/me
+        Authorization: Bearer {{TOKEN}}
+        ```
+
+    """
+    return re.sub(
+        r"(?<!\\)\$\(([^)]+)\)",
+        lambda m: subprocess.check_output(m.group(1), shell=True).decode().strip(),
+        text,
+    )
+
+
 def env_parse(text: str, **env) -> str:
     """
     Try and parse a string of text from the environment and replace it with the
     corresponding variable value, or it leaves it unchanged if no matching
     variables exist.
     """
-    return env_var_regex.sub(
+    expanded_env = env_var_regex.sub(
         lambda m: env.get(m.group(1), "{{" + m.group(1) + "}}"), text
     )
+
+    return _shell_expand(expanded_env)
 
 
 def parse_env_json(env_file: str) -> dict:
