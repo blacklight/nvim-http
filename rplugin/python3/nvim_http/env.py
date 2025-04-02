@@ -51,14 +51,16 @@ def parse_dot_env(env_file: str) -> dict:
 
 def get_environments(nvim: Nvim) -> dict:
     """
-    Load all the available environments from the `./*.env.json` files.
+    Load all the available environments from the `./*env.json` files.
     """
     envs = {}
     curfile = nvim.eval('expand("%")')
-    pwd = nvim.eval("getcwd()")
+    cwd = nvim.eval("getcwd()")
+    filedir = os.path.dirname(curfile)
     dirs = {
-        pwd,
-        os.path.abspath(os.path.dirname(curfile)),
+        cwd,
+        filedir,
+        os.path.join(cwd, filedir),
     }
 
     env_files = [
@@ -66,13 +68,13 @@ def get_environments(nvim: Nvim) -> dict:
         for d in dirs
         if os.path.isdir(d)
         for f in os.listdir(d)
-        if env_file_regex.match(f)
+        if env_file_regex.search(f)
     ]
 
     default_env = {}
 
     for env_file in env_files:
-        if env_file.endswith(".env.json"):
+        if env_file.endswith("env.json"):
             envs.update(parse_env_json(env_file))
         elif env_file.endswith(".env"):
             default_env.update(parse_dot_env(env_file))
