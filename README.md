@@ -69,6 +69,9 @@ you want to show it in a new tab.
 The default request timeout is 10 seconds, but you can change it by setting the
 `-T`/`--timeout` flag, e.g. `:Http -T 5`.
 
+By default the request will follow HTTP redirects, but you can disable this
+through the `--no-redirects` flag.
+
 If you want to interrupt the current request, use the `:HttpStop` command.
 
 ### Multiple requests

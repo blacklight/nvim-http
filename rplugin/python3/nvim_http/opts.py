@@ -33,6 +33,7 @@ class HttpRequestOptions:
     def __init__(self, *args: str):
         self.response_buffer_mode = ResponseBufferMode.from_args(*args)
         self.timeout = self._timeout_from_args(*args)
+        self.disable_redirects = "--no-redirects" in args
 
     @classmethod
     def _timeout_from_args(cls, *args: str) -> Optional[float]:

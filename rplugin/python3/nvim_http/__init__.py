@@ -36,6 +36,8 @@ class HttpRunner:
                 req_args["data"] = request["payload"]
             if opts.timeout:
                 req_args["timeout"] = opts.timeout
+            if opts.disable_redirects:
+                req_args["allow_redirects"] = False
 
             with requests.Session() as self._session:
                 rs = method(url, **req_args)
@@ -60,6 +62,7 @@ class HttpRunner:
             -h / --horizontal: Display the response in a horizontal
             -t / --tab: Display the response in a new tab
             -T / --timeout: Set the timeout for the HTTP request, in seconds (default: 10)
+            --no-redirects: Disable following redirects
 
         """
         opts = HttpRequestOptions(*args)
@@ -105,6 +108,7 @@ class HttpRunner:
             "--horizontal",
             "--tab",
             "--timeout",
+            "--no-redirects",
         }
 
         if "-v" in args or "--vertical" in args:
@@ -122,6 +126,9 @@ class HttpRunner:
         if "-T" in args or "--timeout" in args:
             opts.remove("-T")
             opts.remove("--timeout")
+
+        if "--no-redirects" in args:
+            opts.remove("--no-redirects")
 
         if args and (args[-1] == "-T" or args[-1] == "--timeout"):
             # Return a dummy value to indicate that the next argument should be
