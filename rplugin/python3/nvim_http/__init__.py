@@ -71,7 +71,12 @@ class HttpRunner:
             else select_surrounding_http_request(self.nvim)
         )
 
-        env = get_environment(self.nvim)
+        try:
+            env = get_environment(self.nvim)
+        except (KeyboardInterrupt, pynvim.NvimError):
+            logger().warning("HTTP request cancelled")
+            return
+
         request = parse_http_request(text, **env)
         self.http_stop()
         self._http_run(request, opts)
