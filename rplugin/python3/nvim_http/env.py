@@ -5,7 +5,7 @@ import sys
 
 from pynvim import Nvim
 
-env_file_regex = re.compile(r".*\.?env\.json$")
+env_file_regex = re.compile(r"(.*\.?env\.json)|(\.env)$")
 env_var_regex = re.compile(r"{{([A-Za-z0-9-_]+)}}")
 
 
@@ -18,6 +18,35 @@ def env_parse(text: str, **env) -> str:
     return env_var_regex.sub(
         lambda m: env.get(m.group(1), "{{" + m.group(1) + "}}"), text
     )
+
+
+def parse_env_json(env_file: str) -> dict:
+    """
+    Parse environment configuration from a JSON file and return it as a dictionary.
+    """
+    with open(env_file) as f:
+        return json.load(f)
+
+
+def parse_dot_env(env_file: str) -> dict:
+    """
+    Parse an environment from a .env file and return it as a dictionary.
+    """
+    # Try to parse the environment file as a key-value pair file
+    env = {}
+    with open(env_file) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+
+            tokens = line.split("=", 1)
+            if len(tokens) < 2:
+                continue
+
+            env[tokens[0].strip()] = "=".join(tokens[1:]).strip()
+
+    return env
 
 
 def get_environments(nvim: Nvim) -> dict:
@@ -39,12 +68,20 @@ def get_environments(nvim: Nvim) -> dict:
         if os.path.isdir(d) and env_file_regex.match(f)
     ]
 
+    default_env = {}
+
     for env_file in env_files:
-        try:
-            with open(env_file) as f:
-                envs.update(json.load(f))
-        except Exception:
-            pass
+        if env_file.endswith(".env.json"):
+            envs.update(parse_env_json(env_file))
+        elif env_file.endswith(".env"):
+            default_env.update(parse_dot_env(env_file))
+
+    # The default environment is shared across all environments
+    if envs:
+        for env in envs.values():
+            env.update(default_env)
+    else:
+        envs["default"] = default_env
 
     return envs
 
