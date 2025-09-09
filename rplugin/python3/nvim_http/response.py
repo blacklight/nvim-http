@@ -3,8 +3,8 @@ import json
 from pynvim import Nvim
 from .opts import HttpRequestOptions
 import tempfile
-
-response_bufname = tempfile.NamedTemporaryFile(suffix=".http").name
+import os
+response_bufname = os.path.join(tempfile.gettempdir(), "response.http")
 
 def get_http_response_buf(nvim: Nvim):
     """
