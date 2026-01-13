@@ -1,10 +1,13 @@
 from http.client import responses
 import json
+import os
+import tempfile
+
 from pynvim import Nvim
 from .opts import HttpRequestOptions
-import tempfile
-import os
+
 response_bufname = os.path.join(tempfile.gettempdir(), "response.http")
+
 
 def get_http_response_buf(nvim: Nvim):
     """
