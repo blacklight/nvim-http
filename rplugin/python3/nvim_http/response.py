@@ -12,7 +12,12 @@ def get_http_response_buf(nvim: Nvim):
     """
     Get the buffer object of the HTTP response.
     """
-    response_bufs = [buf for buf in nvim.buffers if response_bufname in buf.name]
+    target = os.path.realpath(response_bufname)
+    response_bufs = [
+        buf
+        for buf in nvim.buffers
+        if buf.name and os.path.realpath(buf.name) == target
+    ]
     return response_bufs[0] if response_bufs else None
 
 
