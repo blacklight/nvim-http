@@ -15,9 +15,7 @@ def get_http_response_buf(nvim: Nvim):
     """
     target = os.path.realpath(response_bufname)
     response_bufs = [
-        buf
-        for buf in nvim.buffers
-        if buf.name and os.path.realpath(buf.name) == target
+        buf for buf in nvim.buffers if buf.name and os.path.realpath(buf.name) == target
     ]
     return response_bufs[0] if response_bufs else None
 
